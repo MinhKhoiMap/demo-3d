@@ -30,12 +30,12 @@ export default function App() {
           <Model scale={18} />
           {/* <Scroll> */}
           <Banner
-            position={[0, 0, 0]}
+            position={[0, 1.8, 0]}
             text={["immersive live-scene performance", "reality shows"]}
           />
-          <Banner position={[0, 1.8, 0]} text={["gameshows", "TVCs"]} />
+          <Banner position={[0, 3.6, 0]} text={["gameshows", "TVCs"]} />
           <Banner
-            position={[0, 3.6, 0]}
+            position={[0, 5.4, 0]}
             text={["music videos", "livestreams", "technical execution"]}
           />
           {/* </Scroll> */}
@@ -225,8 +225,11 @@ function Model(props) {
     )
   );
   useFrame((state, delta) => {
-    ref.current.position.y = scroll.offset * 1.8 * 2;
-    state.camera.lookAt(0, scroll.offset * 1.8 * 2, 0);
+    ref.current.position.y = scroll.offset * 1.8 * 5;
+    ref.current.rotation.y = -scroll.offset * (Math.PI * 2);
+    state.camera.lookAt(0, scroll.offset * 1.8 * 5, 0);
+    // state.camera.position.y = scroll.offset * 1.8 * 3;
+    easing.damp(state.camera.position, "y", scroll.offset * 1.8 * 3, 5 * delta);
   });
 
   return <primitive ref={ref} object={scene} {...props} />;
