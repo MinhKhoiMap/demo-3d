@@ -20,25 +20,25 @@ export default function App() {
   return (
     <div className="w-screen h-screen">
       <Canvas
-        camera={{ position: [0, -1.8, 13], fov: 13 }}
+        camera={{ position: [0, -1, 13], fov: 13 }}
         onCreated={({ gl }) => {
           gl.toneMapping = THREE.Uncharted2ToneMapping;
-          gl.setClearColor(new THREE.Color("pink"));
+          // gl.setClearColor(new THREE.Color("pink"));
         }}
       >
-        <ScrollControls pages={3}>
+        <ScrollControls pages={10}>
           <Model scale={18} />
-          <Scroll>
-            <Banner
-              position={[0, 0, 0]}
-              text={["immersive live-scene performance", "reality shows"]}
-            />
-            <Banner position={[0, -1.8, 0]} text={["gameshows", "TVCs"]} />
-            <Banner
-              position={[0, -3.6, 0]}
-              text={["music videos", "livestreams", "technical execution"]}
-            />
-          </Scroll>
+          {/* <Scroll> */}
+          <Banner
+            position={[0, 0, 0]}
+            text={["immersive live-scene performance", "reality shows"]}
+          />
+          <Banner position={[0, 1.8, 0]} text={["gameshows", "TVCs"]} />
+          <Banner
+            position={[0, 3.6, 0]}
+            text={["music videos", "livestreams", "technical execution"]}
+          />
+          {/* </Scroll> */}
         </ScrollControls>
         <ambientLight intensity={0.5 * Math.PI} />
         <Environment
@@ -46,12 +46,9 @@ export default function App() {
           far={1000}
           resolution={256}
           preset="dawn"
+          background
           frames={Infinity}
-        >
-          <Float>
-            <mesh />
-          </Float>
-        </Environment>
+        ></Environment>
       </Canvas>
     </div>
   );
@@ -160,7 +157,7 @@ function Banner(props) {
     // Make texture from canvas
     const texture = new THREE.CanvasTexture(canvas);
     texture.wrapS = THREE.RepeatWrapping;
-    texture.repeat.set(4, 1); // repeat text around
+    texture.repeat.set(5, 1); // repeat text around
 
     // Assign to material later
     ref.current.material.map = texture;
@@ -194,7 +191,7 @@ function Banner(props) {
           position={[
             props.position[0],
             props.position[2],
-            Math.abs(props.position[1]) + (isHovered ? -0.55 : -0.5),
+            -(Math.abs(props.position[1]) + (isHovered ? 0.55 : 0.5)),
           ]}
           ref={topLineRef}
         >
@@ -206,7 +203,7 @@ function Banner(props) {
           position={[
             props.position[0],
             props.position[2],
-            Math.abs(props.position[1]) + (isHovered ? 0.55 : 0.5),
+            -(Math.abs(props.position[1]) - (isHovered ? 0.55 : 0.5)),
           ]}
           ref={bottomLineRef}
         >
@@ -228,7 +225,8 @@ function Model(props) {
     )
   );
   useFrame((state, delta) => {
-    ref.current.rotation.y = -scroll.offset * (Math.PI * 2);
+    ref.current.position.y = scroll.offset * 1.8 * 2;
+    state.camera.lookAt(0, scroll.offset * 1.8 * 2, 0);
   });
 
   return <primitive ref={ref} object={scene} {...props} />;
