@@ -232,5 +232,49 @@ function Model(props) {
     easing.damp(state.camera.position, "y", scroll.offset * 1.8 * 3, 5 * delta);
   });
 
-  return <primitive ref={ref} object={scene} {...props} />;
+  // return <primitive ref={ref} object={scene} {...props} />;
+
+  return (
+    <group ref={ref}>
+      <mesh geometry={nodes.Retopo_Curve001.geometry} scale={18}>
+        <MeshTransmissionMaterial
+          backside
+          backsideThickness={1}
+          samples={16}
+          thickness={0.2}
+          anisotropicBlur={0.1}
+          iridescence={1}
+          iridescenceIOR={1}
+          iridescenceThicknessRange={[0, 1400]}
+          clearcoat={1}
+          envMapIntensity={0.5}
+        />
+
+        {/* <mesh geometry={nodes.Sphere.geometry}>
+          <MeshTransmissionMaterial
+            samples={6}
+            resolution={512}
+            thickness={-1}
+            anisotropy={0.25}
+          />
+        </mesh> */}
+      </mesh>
+      <mesh geometry={nodes.Retopo_Curve003.geometry} scale={18}>
+        <MeshTransmissionMaterial
+          backside
+          backsideThickness={1}
+          samples={16}
+          thickness={0.2}
+          anisotropicBlur={0.1}
+          ior={1}
+          iridescence={1}
+          iridescenceIOR={1}
+          iridescenceThicknessRange={[0, 1400]}
+          clearcoat={1}
+          envMapIntensity={0.5}
+          color={"#EA2626"}
+        />
+      </mesh>
+    </group>
+  );
 }
