@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
 import {
   Image,
   Environment,
@@ -16,39 +16,35 @@ import {
 import "./util";
 import { easing } from "maath";
 
+function Bg() {
+  const { scene } = useThree();
+  const texture = useLoader(THREE.TextureLoader, "/GRADIENT697.jpg");
+
+  scene.background = texture;
+
+  return null;
+}
+
 export default function App() {
   return (
     <div className="w-screen h-screen">
       <Canvas
         camera={{ position: [0, -1, 13], fov: 13 }}
         onCreated={({ gl }) => {
-          gl.toneMapping = THREE.Uncharted2ToneMapping;
-          // gl.setClearColor(new THREE.Color("pink"));
+          gl.toneMapping = THREE.ACESFilmicToneMapping;
         }}
       >
         <ScrollControls pages={10}>
           <Model scale={18} />
-          {/* <Scroll> */}
-          <Banner
-            position={[0, 1.8, 0]}
-            text={["immersive live-scene performance", "reality shows"]}
-          />
-          <Banner position={[0, 3.6, 0]} text={["gameshows", "TVCs"]} />
-          <Banner
-            position={[0, 5.4, 0]}
-            text={["music videos", "livestreams", "technical execution"]}
-          />
-          {/* </Scroll> */}
+          <Banner position={[0, 1.8, 0]} text="/decoration.png" />
+          <Banner position={[0, 1.8 * 2, 0]} text="/event.png" />
+          <Banner position={[0, 1.8 * 3, 0]} text="/exhibition.png" />
+          <Banner position={[0, 1.8 * 4, 0]} text="/festival.png" />
+          <Banner position={[0, 1.8 * 5, 0]} text="/posm.png" />
+          <Banner position={[0, 1.8 * 6, 0]} text="/set design.png" />
         </ScrollControls>
-        <ambientLight intensity={0.5 * Math.PI} />
-        <Environment
-          near={1}
-          far={1000}
-          resolution={256}
-          preset="dawn"
-          background
-          frames={Infinity}
-        ></Environment>
+        <Bg />
+        <Environment preset="dawn" blur={0.5} />
       </Canvas>
     </div>
   );
@@ -125,46 +121,10 @@ function Banner(props) {
       0.2,
       delta
     );
-
-    // console.log(ref.current.position);
   });
 
-  useEffect(() => {
-    // Canvas for drawing text
-    const canvas = document.createElement("canvas");
-    canvas.width = 2048;
-    canvas.height = 300;
-    const ctx = canvas.getContext("2d");
-
-    // Background transparent to let transmission work
-    ctx.fillStyle = "rgba(255,255,255,0.1)";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    ctx.fillStyle = "black";
-    ctx.font = "bold 200px 'Bricolage Grotesque'";
-    ctx.fillText("set design", 0, 150);
-
-    props.text.map((t, i) => {
-      const ctx1 = canvas.getContext("2d");
-      ctx1.fillStyle = "rgba(255,255,255,0.1)";
-      ctx1.fillRect(0, 0, canvas.width, canvas.height);
-
-      ctx1.fillStyle = "black";
-      ctx1.font = "bold 40px 'Bricolage Grotesque'";
-      ctx1.fillText(t, 0, 200 + i * 40);
-    });
-
-    // Make texture from canvas
-    const texture = new THREE.CanvasTexture(canvas);
-    texture.wrapS = THREE.RepeatWrapping;
-    texture.repeat.set(5, 1); // repeat text around
-
-    // Assign to material later
-    ref.current.material.map = texture;
-    ref.current.material.needsUpdate = true;
-  }, []);
-
-  useEffect(() => {}, []);
+  const texture = useTexture(props.text);
+  texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 
   return (
     <group>
@@ -176,6 +136,9 @@ function Banner(props) {
       >
         <cylinderGeometry args={[1.6, 1.6, 1, 64, 1, true]} />
         <MeshTransmissionMaterial
+          map={texture}
+          map-anisotropy={16}
+          map-repeat={[3, 1]}
           thickness={0.1}
           transmission={1}
           ior={1.5}
@@ -218,7 +181,7 @@ function Banner(props) {
 function Model(props) {
   const ref = useRef();
   const scroll = useScroll();
-  const { scene, nodes } = useGLTF("/models/epj.glb");
+  const { scene, nodes } = useGLTF("/models/project web.glb");
   useLayoutEffect(() =>
     Object.values(nodes).forEach(
       (node) => (node.receiveShadow = node.castShadow = true)
@@ -229,35 +192,27 @@ function Model(props) {
     ref.current.rotation.y = -scroll.offset * (Math.PI * 2);
     state.camera.lookAt(0, scroll.offset * 1.8 * 5, 0);
     // state.camera.position.y = scroll.offset * 1.8 * 3;
-    easing.damp(state.camera.position, "y", scroll.offset * 1.8 * 3, 5 * delta);
+    easing.damp(state.camera.position, "y", scroll.offset * 1.8 * 3, delta);
   });
 
-  // return <primitive ref={ref} object={scene} {...props} />;
-
   return (
-    <group ref={ref}>
+    <group ref={ref} rotation={[30, 0, 0]}>
       <mesh geometry={nodes.Retopo_Curve001.geometry} scale={18}>
         <MeshTransmissionMaterial
           backside
           backsideThickness={1}
-          samples={16}
-          thickness={0.2}
-          anisotropicBlur={0.1}
-          iridescence={1}
-          iridescenceIOR={1}
-          iridescenceThicknessRange={[0, 1400]}
-          clearcoat={1}
-          envMapIntensity={0.5}
+          // samples={16}
+          // thickness={0.2}
+          // anisotropicBlur={0.1}
+          // iridescence={1}
+          // iridescenceIOR={1}
+          // iridescenceThicknessRange={[0, 1400]}
+          // clearcoat={1}
+          ior={1}
+          envMapIntensity={0}
+          transmission={0}
+          color={"#ce2027"}
         />
-
-        {/* <mesh geometry={nodes.Sphere.geometry}>
-          <MeshTransmissionMaterial
-            samples={6}
-            resolution={512}
-            thickness={-1}
-            anisotropy={0.25}
-          />
-        </mesh> */}
       </mesh>
       <mesh geometry={nodes.Retopo_Curve003.geometry} scale={18}>
         <MeshTransmissionMaterial
@@ -265,14 +220,14 @@ function Model(props) {
           backsideThickness={1}
           samples={16}
           thickness={0.2}
-          anisotropicBlur={0.1}
+          // anisotropicBlur={0.1}
           ior={1}
           iridescence={1}
           iridescenceIOR={1}
           iridescenceThicknessRange={[0, 1400]}
           clearcoat={1}
-          envMapIntensity={0.5}
-          color={"#EA2626"}
+          envMapIntensity={1}
+          color={"#fff"}
         />
       </mesh>
     </group>
