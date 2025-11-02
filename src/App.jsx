@@ -1,40 +1,60 @@
 import * as THREE from "three";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
 import {
-  Image,
-  Environment,
   ScrollControls,
   useScroll,
-  useTexture,
-  Scroll,
   useGLTF,
   MeshTransmissionMaterial,
-  Outlines,
-  Float,
+  EnvironmentCube,
+  useTexture,
 } from "@react-three/drei";
-import "./util";
 import { easing } from "maath";
+import "./util";
 
-function Bg() {
-  const { scene } = useThree();
-  const texture = useLoader(THREE.TextureLoader, "/GRADIENT697.jpg");
+function GradientBackground() {
+  const shader = {
+    uniforms: {},
+    vertexShader: `
+      varying vec2 vUv;
+      void main() {
+        vUv = uv;
+        gl_Position = vec4(position, 1);
+      }
+    `,
+    fragmentShader: `
+      varying vec2 vUv;
 
-  scene.background = texture;
+      void main() {
+       float t = vUv.y / 0.7;          // scale vUv.y so 0.3 -> 1
+          t = clamp(t, 0.0, 1.0);  
+      
+        // Gradient from red (bottom) to black (top)
+        vec3 color = mix(vec3(0.3, 0.0, 0.0), vec3(0.0), t);
 
-  return null;
+        gl_FragColor = vec4(color, 1.0);
+      }
+    `,
+  };
+
+  return (
+    <mesh scale={[2, 2, 1]} position={[0, 0, -1]} renderOrder={-1}>
+      <planeGeometry args={[2, 2]} />
+      <shaderMaterial
+        args={[shader]}
+        position={[0, 0, -1]}
+        depthWrite={false}
+      />
+    </mesh>
+  );
 }
 
 export default function App() {
   return (
     <div className="w-screen h-screen">
-      <Canvas
-        camera={{ position: [0, -1, 13], fov: 13 }}
-        onCreated={({ gl }) => {
-          gl.toneMapping = THREE.ACESFilmicToneMapping;
-        }}
-      >
-        <ScrollControls pages={10}>
+      <Canvas camera={{ position: [-2, 0, 13], fov: 13 }}>
+        <GradientBackground />
+        <ScrollControls pages={6}>
           <Model scale={18} />
           <Banner position={[0, 1.8, 0]} text="/decoration.png" />
           <Banner position={[0, 1.8 * 2, 0]} text="/event.png" />
@@ -43,77 +63,20 @@ export default function App() {
           <Banner position={[0, 1.8 * 5, 0]} text="/posm.png" />
           <Banner position={[0, 1.8 * 6, 0]} text="/set design.png" />
         </ScrollControls>
-        <Bg />
-        <Environment preset="dawn" blur={0.5} />
+        <EnvironmentCube preset="dawn" environmentIntensity={0.5} />
       </Canvas>
     </div>
   );
 }
 
-function Rig(props) {
-  const ref = useRef();
-  // const scroll = useScroll();
-  useFrame((state, delta) => {
-    // ref.current.rotation.y = -scroll.offset * (Math.PI * 2); // Rotate contents
-    state.events.update(); // Raycasts every frame rather than on pointer-move
-    // easing.damp3(state.camera.position, [-2, 1.5, 10], 0.3, delta); // Move camera
-    // state.camera.lookAt(0, 0, 0); // Look at center
-  });
-  return <group ref={ref} {...props} />;
-}
-
-function Carousel({ radius = 1.4, count = 8 }) {
-  const myMesh = useRef();
-  useFrame(() => {
-    myMesh.current.rotation.y += 0.005;
-  });
-
-  return (
-    <mesh ref={myMesh}>
-      {Array.from({ length: count }, (_, i) => (
-        <Card
-          key={i}
-          url={`/img${Math.floor(i % 10) + 1}_.jpg`}
-          position={[
-            Math.sin((i / count) * Math.PI * 2) * radius,
-            0,
-            Math.cos((i / count) * Math.PI * 2) * radius,
-          ]}
-          rotation={[0, Math.PI + (i / count) * Math.PI * 2, 0]}
-        />
-      ))}
-    </mesh>
-  );
-}
-
-function Card({ url, ...props }) {
-  const ref = useRef();
-  return (
-    <Image
-      ref={ref}
-      url={url}
-      transparent
-      side={THREE.DoubleSide}
-      radius={0.1}
-      {...props}
-    >
-      <bentPlaneGeometry args={[0.1, 1, 1, 20, 20]} />
-    </Image>
-  );
-}
-
 function Banner(props) {
   const ref = useRef();
-  const topLineRef = useRef();
-  const bottomLineRef = useRef();
   const [isHovered, setIsHoverd] = useState(false);
 
   useFrame((state, delta) => {
     ref.current.rotation.y += 0.01;
 
     easing.damp3(ref.current.scale, isHovered ? 1.1 : 1, 0.1, delta);
-    easing.damp3(topLineRef.current.scale, isHovered ? 1.1 : 1, 0.1, delta);
-    easing.damp3(bottomLineRef.current.scale, isHovered ? 1.1 : 1, 0.1, delta);
     easing.damp(
       ref.current.material,
       "roughness",
@@ -127,107 +90,66 @@ function Banner(props) {
   texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 
   return (
-    <group>
-      <mesh
-        ref={ref}
-        {...props}
-        onPointerEnter={() => setIsHoverd(true)}
-        onPointerLeave={() => setIsHoverd(false)}
-      >
-        <cylinderGeometry args={[1.6, 1.6, 1, 64, 1, true]} />
-        <MeshTransmissionMaterial
-          map={texture}
-          map-anisotropy={16}
-          map-repeat={[3, 1]}
-          thickness={0.1}
-          transmission={1}
-          ior={1.5}
-          chromaticAberration={0.5}
-          side={THREE.DoubleSide}
-          toneMapped={false}
-          anisotropy={0}
-        />
-      </mesh>
-
-      <group rotation={[Math.PI / 2, 0, 0]}>
-        <mesh
-          position={[
-            props.position[0],
-            props.position[2],
-            -(Math.abs(props.position[1]) + (isHovered ? 0.55 : 0.5)),
-          ]}
-          ref={topLineRef}
-        >
-          <torusGeometry args={[1.6, 0.001, 16, 100]} />
-          <meshBasicMaterial color="#000" />
-        </mesh>
-
-        <mesh
-          position={[
-            props.position[0],
-            props.position[2],
-            -(Math.abs(props.position[1]) - (isHovered ? 0.55 : 0.5)),
-          ]}
-          ref={bottomLineRef}
-        >
-          <torusGeometry args={[1.6, 0.001, 16, 100]} />
-          <meshBasicMaterial color="#000" />
-        </mesh>
-      </group>
-    </group>
+    <mesh
+      ref={ref}
+      {...props}
+      onPointerEnter={() => setIsHoverd(true)}
+      onPointerLeave={() => setIsHoverd(false)}
+    >
+      <cylinderGeometry args={[1.6, 1.6, 1, 64, 1, true]} />
+      <MeshTransmissionMaterial
+        map={texture}
+        map-anisotropy={16}
+        map-repeat={[3, 1]}
+        thickness={0.1}
+        transmission={1}
+        ior={1.5}
+        chromaticAberration={0.5}
+        side={THREE.DoubleSide}
+        toneMapped={false}
+        anisotropy={0}
+      />
+    </mesh>
   );
 }
 
 function Model(props) {
+  const numberOfBanner = 6;
   const ref = useRef();
   const scroll = useScroll();
-  const { scene, nodes } = useGLTF("/models/project web.glb");
+  const { nodes } = useGLTF("/models/LOGO WEB NEW.glb");
   useLayoutEffect(() =>
     Object.values(nodes).forEach(
       (node) => (node.receiveShadow = node.castShadow = true)
     )
   );
   useFrame((state, delta) => {
-    ref.current.position.y = scroll.offset * 1.8 * 5;
+    ref.current.position.y = scroll.offset * 1.8 * numberOfBanner;
     ref.current.rotation.y = -scroll.offset * (Math.PI * 2);
-    state.camera.lookAt(0, scroll.offset * 1.8 * 5, 0);
-    // state.camera.position.y = scroll.offset * 1.8 * 3;
+    state.camera.lookAt(0, scroll.offset * 1.8 * numberOfBanner, 0);
+    state.camera.position.y = scroll.offset * 1.8 * (numberOfBanner / 2);
     easing.damp(state.camera.position, "y", scroll.offset * 1.8 * 3, delta);
   });
 
   return (
-    <group ref={ref} rotation={[30, 0, 0]}>
-      <mesh geometry={nodes.Retopo_Curve001.geometry} scale={18}>
+    <group ref={ref}>
+      <mesh geometry={nodes.Retopo_Curve001.geometry} scale={props.scale}>
         <MeshTransmissionMaterial
           backside
-          backsideThickness={1}
-          // samples={16}
-          // thickness={0.2}
-          // anisotropicBlur={0.1}
-          // iridescence={1}
-          // iridescenceIOR={1}
-          // iridescenceThicknessRange={[0, 1400]}
-          // clearcoat={1}
+          backsideThickness={0.4}
           ior={1}
-          envMapIntensity={0}
           transmission={0}
-          color={"#ce2027"}
+          metalness={1}
+          color={"red"}
+          thickness={1}
         />
       </mesh>
-      <mesh geometry={nodes.Retopo_Curve003.geometry} scale={18}>
+      <mesh geometry={nodes.Retopo_Curve003.geometry} scale={props.scale}>
         <MeshTransmissionMaterial
-          backside
-          backsideThickness={1}
-          samples={16}
-          thickness={0.2}
-          // anisotropicBlur={0.1}
-          ior={1}
-          iridescence={1}
-          iridescenceIOR={1}
-          iridescenceThicknessRange={[0, 1400]}
-          clearcoat={1}
-          envMapIntensity={1}
+          thickness={0}
+          ior={3}
           color={"#fff"}
+          transmission={1}
         />
       </mesh>
     </group>

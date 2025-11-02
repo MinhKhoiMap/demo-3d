@@ -1,42 +1,11 @@
 @import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&display=swap");
 @import "tailwindcss";
 
-.bricolage-grotesque-extrathin {
-  font-family: "Bricolage Grotesque", sans-serif;
-  font-optical-sizing: auto;
-  font-weight: 200;
-  font-style: normal;
-  font-variation-settings: "wdth" 100;
-}
-
-.bricolage-grotesque-thin {
-  font-family: "Bricolage Grotesque", sans-serif;
-  font-optical-sizing: auto;
-  font-weight: 300;
-  font-style: normal;
-  font-variation-settings: "wdth" 100;
-}
-
-.bricolage-grotesque-normal {
-  font-family: "Bricolage Grotesque", sans-serif;
-  font-optical-sizing: auto;
-  font-weight: 500;
-  font-style: normal;
-  font-variation-settings: "wdth" 100;
-}
-
-.bricolage-grotesque-bold {
-  font-family: "Bricolage Grotesque", sans-serif;
-  font-optical-sizing: auto;
-  font-weight: 700;
-  font-style: normal;
-  font-variation-settings: "wdth" 100;
-}
-
-.bricolage-grotesque-extrabold {
-  font-family: "Bricolage Grotesque", sans-serif;
-  font-optical-sizing: auto;
-  font-weight: 800;
-  font-style: normal;
-  font-variation-settings: "wdth" 100;
+#gradient-canvas {
+  width: 100%;
+  height: 100%;
+  --gradient-color-1: #000;
+  --gradient-color-2: #000;
+  --gradient-color-3: #000;
+  --gradient-color-4: red;
 }
