@@ -1,6 +1,6 @@
 import * as THREE from "three";
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
 import {
   ScrollControls,
   useScroll,
@@ -11,6 +11,7 @@ import {
 } from "@react-three/drei";
 import { easing } from "maath";
 import "./util";
+import Word from "./components/Word";
 
 function GradientBackground() {
   const shader = {
@@ -56,12 +57,19 @@ export default function App() {
         <GradientBackground />
         <ScrollControls pages={6}>
           <Model scale={18} />
-          <Banner position={[0, 1.8, 0]} text="/decoration.png" />
-          <Banner position={[0, 1.8 * 2, 0]} text="/event.png" />
-          <Banner position={[0, 1.8 * 3, 0]} text="/exhibition.png" />
-          <Banner position={[0, 1.8 * 4, 0]} text="/festival.png" />
-          <Banner position={[0, 1.8 * 5, 0]} text="/posm.png" />
-          <Banner position={[0, 1.8 * 6, 0]} text="/set design.png" />
+          {/* Page 1 */}
+          {["PROJECT:E", "CREATIVE"].map((item, index) => {
+            return <Word key={index} children={item} order={index} />;
+          })}
+
+          {/* Page 2 */}
+          <Banner position={[0, 3, 0]} text="/decoration.png" />
+          <Banner position={[0, 3 * 2, 0]} text="/event.png" />
+          <Banner position={[0, 3 * 3, 0]} text="/exhibition.png" />
+          <Banner position={[0, 3 * 4, 0]} text="/festival.png" />
+          <Banner position={[0, 3 * 5, 0]} text="/posm.png" />
+          <Banner position={[0, 3 * 6, 0]} text="/set design.png" />
+          {/* Page 3 */}
         </ScrollControls>
         <EnvironmentCube preset="dawn" environmentIntensity={0.5} />
       </Canvas>
@@ -123,12 +131,22 @@ function Model(props) {
       (node) => (node.receiveShadow = node.castShadow = true)
     )
   );
+
   useFrame((state, delta) => {
-    ref.current.position.y = scroll.offset * 1.8 * numberOfBanner;
-    ref.current.rotation.y = -scroll.offset * (Math.PI * 2);
-    state.camera.lookAt(0, scroll.offset * 1.8 * numberOfBanner, 0);
-    state.camera.position.y = scroll.offset * 1.8 * (numberOfBanner / 2);
-    easing.damp(state.camera.position, "y", scroll.offset * 1.8 * 3, delta);
+    const currentPage = Math.floor(scroll.offset * 6);
+    // console.log(currentPage);
+    if (currentPage > 1) {
+      ref.current.position.y = scroll.offset * 1.8 * numberOfBanner;
+      ref.current.rotation.y = -scroll.offset * (Math.PI * 2);
+      state.camera.lookAt(0, scroll.offset * 1.8 * numberOfBanner, 0);
+      // state.camera.position.y = scroll.offset * 1.8 * (numberOfBanner / 2);
+      easing.damp(
+        state.camera.position,
+        "y",
+        scroll.offset * 1.8 * (numberOfBanner / 2),
+        delta
+      );
+    }
   });
 
   return (
