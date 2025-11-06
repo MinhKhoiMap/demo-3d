@@ -6,7 +6,7 @@ import { useRef } from "react";
 export default function Word({ children, order, ...props }) {
   const fontProps = {
     font: "/fonts/Boldonse-Regular.ttf",
-    fontSize: 0.8,
+    fontSize: 0.5,
     letterSpacing: -0.05,
     lineHeight: 1,
     "material-toneMapped": false,
@@ -19,16 +19,9 @@ export default function Word({ children, order, ...props }) {
 
   // Tie component to the render-loop
   useFrame((state, delta) => {
-    const currentPage = Math.floor(scroll.offset * 6);
-    if (scroll.offset != scrollHis) {
-      // const box = new THREE.Box3().setFromObject(ref.current);
-      // const size = new THREE.Vector3();
-      // box.getSize(size);
-      // const width = size.x;
-      // const height = size.y;
-
-      // console.log(width, height);
-
+    const currentPage = Math.floor(scroll.offset * 10);
+    // console.log(currentPage);
+    if (scroll.offset != scrollHis && currentPage < 5) {
       if (order <= currentPage) {
         isShow = false;
       } else {
@@ -36,42 +29,33 @@ export default function Word({ children, order, ...props }) {
       }
 
       if (!isShow) {
-        ref.current.position.x += scroll.offset * (order + 1) * -1;
-        ref.current.position.y += scroll.offset * (order + 1) * -1;
-        ref.current.position.z += scroll.offset * (order + 1) * 0.2;
-        ref.current.rotation.y += scroll.offset * (order + 1) * (Math.PI / 30);
+        const fadeIn = scroll.range(0.1 * order, 0.1 * (order + 1));
+        ref.current.position.x = THREE.MathUtils.lerp(order * 5, -6, fadeIn);
+
+        // ref.current.position.x += (10 / scroll.offset) * (order + 1) * -1;
+        // ref.current.position.y += scroll.offset * (order + 1) * -0.5;
+        // ref.current.position.z += scroll.offset * (order + 1) * 0.2;
+        // ref.current.rotation.y += scroll.offset * (order + 1) * (Math.PI / 10);
       } else {
-        ref.current.position.x += scroll.offset * (order + 1) * -0.5;
-        ref.current.position.y +=
-          ref.current.position.y <= 0 ? scroll.offset * (order + 1) * 0.5 : 0;
-        ref.current.position.z -= scroll.offset * (order + 1) * 0.2;
+        const fadeIn = scroll.range(0.1 * order, 0.1 * (order + 1));
+        ref.current.position.x = THREE.MathUtils.lerp(order * 5, 0, fadeIn);
+
+        // ref.current.position.x += (10 / scroll.offset) * (order + 1) * -0.5;
+        // ref.current.position.y +=
+        //   ref.current.position.y <= 0 ? scroll.offset * (order + 1) * 0.5 : 0;
+        // ref.current.position.z -= scroll.offset * (order + 1) * 0.2;
         // ref.current.rotation.y += -scroll.offset * (order + 1) * (Math.PI / 30);
       }
 
+      // const
+
       scrollHis = scroll.offset;
-    } else {
-      // if (order <= currentPage) {
-      //   isShow = true;
-      // } else {
-      //   isShow = false;
-      // }
-      // if (!isShow) {
-      //   ref.current.position.x += scroll.offset * -2;
-      //   ref.current.position.y += scroll.offset * -0.5;
-      //   ref.current.position.z += scroll.offset * 0.2;
-      //   ref.current.rotation.y += scroll.offset * (Math.PI / 30);
-      // } else {
-      //   ref.current.position.x += scroll.offset * -2;
-      //   ref.current.position.y += scroll.offset * 0.5;
-      //   ref.current.position.z += scroll.offset * 0.2;
-      //   ref.current.rotation.y += -scroll.offset * (Math.PI / 30);
-      // }
     }
   });
   return (
     <Text
       ref={ref}
-      position={[order * 5, -order * 2, 0]}
+      position={[order * 5, 0, 0]}
       // rotation={[0, order * (Math.PI / 30), 0]}
       {...fontProps}
       {...props}

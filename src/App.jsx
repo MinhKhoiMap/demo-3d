@@ -39,7 +39,7 @@ function GradientBackground() {
   };
 
   return (
-    <mesh scale={[2, 2, 1]} position={[0, 0, -1]} renderOrder={-1}>
+    <mesh scale={[20, 20, 1]} position={[0, 0, -1]} renderOrder={-1}>
       <planeGeometry args={[2, 2]} />
       <shaderMaterial
         args={[shader]}
@@ -55,20 +55,21 @@ export default function App() {
     <div className="w-screen h-screen">
       <Canvas camera={{ position: [-2, 0, 13], fov: 13 }}>
         <GradientBackground />
-        <ScrollControls pages={6}>
+        <ScrollControls pages={10}>
           <Model scale={18} />
           {/* Page 1 */}
-          {["PROJECT:E", "CREATIVE"].map((item, index) => {
+          {["PROJECT:E", "CREATIVE", "PRODUCTION"].map((item, index) => {
             return <Word key={index} children={item} order={index} />;
           })}
 
           {/* Page 2 */}
-          <Banner position={[0, 3, 0]} text="/decoration.png" />
-          <Banner position={[0, 3 * 2, 0]} text="/event.png" />
-          <Banner position={[0, 3 * 3, 0]} text="/exhibition.png" />
-          <Banner position={[0, 3 * 4, 0]} text="/festival.png" />
-          <Banner position={[0, 3 * 5, 0]} text="/posm.png" />
-          <Banner position={[0, 3 * 6, 0]} text="/set design.png" />
+          <Banner position={[0, 3 + 1.8, 0]} text="/decoration.png" />
+          <Banner position={[0, 3 + 1.8 * 2, 0]} text="/event.png" />
+          <Banner position={[0, 3 + 1.8 * 3, 0]} text="/exhibition.png" />
+          <Banner position={[0, 3 + 1.8 * 4, 0]} text="/festival.png" />
+          <Banner position={[0, 3 + 1.8 * 5, 0]} text="/posm.png" />
+          <Banner position={[0, 3 + 1.8 * 6, 0]} text="/set design.png" />
+
           {/* Page 3 */}
         </ScrollControls>
         <EnvironmentCube preset="dawn" environmentIntensity={0.5} />
@@ -83,7 +84,6 @@ function Banner(props) {
 
   useFrame((state, delta) => {
     ref.current.rotation.y += 0.01;
-
     easing.damp3(ref.current.scale, isHovered ? 1.1 : 1, 0.1, delta);
     easing.damp(
       ref.current.material,
@@ -133,19 +133,19 @@ function Model(props) {
   );
 
   useFrame((state, delta) => {
-    const currentPage = Math.floor(scroll.offset * 6);
+    const currentPage = Math.floor(scroll.offset * 10);
     // console.log(currentPage);
-    if (currentPage > 1) {
-      ref.current.position.y = scroll.offset * 1.8 * numberOfBanner;
-      ref.current.rotation.y = -scroll.offset * (Math.PI * 2);
-      state.camera.lookAt(0, scroll.offset * 1.8 * numberOfBanner, 0);
-      // state.camera.position.y = scroll.offset * 1.8 * (numberOfBanner / 2);
-      easing.damp(
-        state.camera.position,
-        "y",
-        scroll.offset * 1.8 * (numberOfBanner / 2),
-        delta
-      );
+    if (currentPage >= 5) {
+      ref.current.position.y = (scroll.offset - 0.4) * 3 * numberOfBanner;
+      ref.current.rotation.y = -(scroll.offset - 0.4) * (Math.PI * 2);
+      state.camera.lookAt(0, (scroll.offset - 0.4) * 3 * numberOfBanner, 0);
+      state.camera.position.y =
+        (scroll.offset - 0.3) * 1.8 * (numberOfBanner / 2);
+    } else {
+      state.camera.position.y = 0;
+      ref.current.position.y = 0;
+      state.camera.lookAt(0, 0, 0);
+      ref.current.rotation.y = 0;
     }
   });
 
