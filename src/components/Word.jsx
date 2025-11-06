@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { Text, useScroll } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { useRef } from "react";
+import { page } from "../constants";
 
 export default function Word({ children, order, ...props }) {
   const fontProps = {
@@ -19,7 +20,7 @@ export default function Word({ children, order, ...props }) {
 
   // Tie component to the render-loop
   useFrame((state, delta) => {
-    const currentPage = Math.floor(scroll.offset * 10);
+    const currentPage = Math.floor(scroll.offset * page);
     // console.log(currentPage);
     if (scroll.offset != scrollHis && currentPage < 5) {
       if (order <= currentPage) {
@@ -29,7 +30,10 @@ export default function Word({ children, order, ...props }) {
       }
 
       if (!isShow) {
-        const fadeIn = scroll.range(0.1 * order, 0.1 * (order + 1));
+        const fadeIn = scroll.range(
+          (1 / page) * order,
+          (1 / page) * (order + 1)
+        );
         ref.current.position.x = THREE.MathUtils.lerp(order * 5, -6, fadeIn);
 
         // ref.current.position.x += (10 / scroll.offset) * (order + 1) * -1;
@@ -37,7 +41,10 @@ export default function Word({ children, order, ...props }) {
         // ref.current.position.z += scroll.offset * (order + 1) * 0.2;
         // ref.current.rotation.y += scroll.offset * (order + 1) * (Math.PI / 10);
       } else {
-        const fadeIn = scroll.range(0.1 * order, 0.1 * (order + 1));
+        const fadeIn = scroll.range(
+          (1 / page) * order,
+          (1 / page) * (order + 1)
+        );
         ref.current.position.x = THREE.MathUtils.lerp(order * 5, 0, fadeIn);
 
         // ref.current.position.x += (10 / scroll.offset) * (order + 1) * -0.5;

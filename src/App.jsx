@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import {
   ScrollControls,
@@ -12,6 +12,7 @@ import {
 import { easing } from "maath";
 import "./util";
 import Word from "./components/Word";
+import { page } from "./constants";
 
 function GradientBackground() {
   const shader = {
@@ -55,7 +56,7 @@ export default function App() {
     <div className="w-screen h-screen">
       <Canvas camera={{ position: [-2, 0, 13], fov: 13 }}>
         <GradientBackground />
-        <ScrollControls pages={10}>
+        <ScrollControls pages={page}>
           <Model scale={18} />
           {/* Page 1 */}
           {["PROJECT:E", "CREATIVE", "PRODUCTION"].map((item, index) => {
@@ -63,12 +64,12 @@ export default function App() {
           })}
 
           {/* Page 2 */}
-          <Banner position={[0, 3 + 1.8, 0]} text="/decoration.png" />
-          <Banner position={[0, 3 + 1.8 * 2, 0]} text="/event.png" />
-          <Banner position={[0, 3 + 1.8 * 3, 0]} text="/exhibition.png" />
-          <Banner position={[0, 3 + 1.8 * 4, 0]} text="/festival.png" />
-          <Banner position={[0, 3 + 1.8 * 5, 0]} text="/posm.png" />
-          <Banner position={[0, 3 + 1.8 * 6, 0]} text="/set design.png" />
+          <Banner position={[0, 0.5 + 1.8, 0]} text="/decoration.png" />
+          <Banner position={[0, 0.5 + 1.8 * 2, 0]} text="/event.png" />
+          <Banner position={[0, 0.5 + 1.8 * 3, 0]} text="/exhibition.png" />
+          <Banner position={[0, 0.5 + 1.8 * 4, 0]} text="/festival.png" />
+          <Banner position={[0, 0.5 + 1.8 * 5, 0]} text="/posm.png" />
+          <Banner position={[0, 0.5 + 1.8 * 6, 0]} text="/set design.png" />
 
           {/* Page 3 */}
         </ScrollControls>
@@ -79,14 +80,23 @@ export default function App() {
 }
 
 function Banner(props) {
-  const ref = useRef();
+  const textRef = useRef();
+  const ringRef = useRef();
   const [isHovered, setIsHoverd] = useState(false);
 
   useFrame((state, delta) => {
-    ref.current.rotation.y += 0.01;
-    easing.damp3(ref.current.scale, isHovered ? 1.1 : 1, 0.1, delta);
+    textRef.current.rotation.y += 0.01;
+    easing.damp3(textRef.current.scale, isHovered ? 1.1 : 1, 0.1, delta);
     easing.damp(
-      ref.current.material,
+      textRef.current.material,
+      "roughness",
+      isHovered ? 4 : 0.9,
+      0.2,
+      delta
+    );
+    easing.damp3(ringRef.current.scale, isHovered ? 1.1 : 1, 0.1, delta);
+    easing.damp(
+      ringRef.current.material,
       "roughness",
       isHovered ? 4 : 0.9,
       0.2,
@@ -98,26 +108,44 @@ function Banner(props) {
   texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 
   return (
-    <mesh
-      ref={ref}
-      {...props}
-      onPointerEnter={() => setIsHoverd(true)}
-      onPointerLeave={() => setIsHoverd(false)}
-    >
-      <cylinderGeometry args={[1.6, 1.6, 1, 64, 1, true]} />
-      <MeshTransmissionMaterial
-        map={texture}
-        map-anisotropy={16}
-        map-repeat={[3, 1]}
-        thickness={0.1}
-        transmission={1}
-        ior={1.5}
-        chromaticAberration={0.5}
-        side={THREE.DoubleSide}
-        toneMapped={false}
-        anisotropy={0}
-      />
-    </mesh>
+    <group {...props}>
+      <mesh
+        ref={ringRef}
+        onPointerEnter={() => setIsHoverd(true)}
+        onPointerLeave={() => setIsHoverd(false)}
+      >
+        <cylinderGeometry args={[1.6, 1.6, 1, 64, 1, true]} />
+        <MeshTransmissionMaterial
+          // map={texture}
+          // map-anisotropy={16}
+          // map-repeat={[3, 1]}
+          thickness={0.2}
+          transmission={0.6}
+          ior={1.5}
+          chromaticAberration={0.5}
+          side={THREE.DoubleSide}
+          toneMapped={false}
+          anisotropy={0}
+          color={"#ccc"}
+        />
+      </mesh>
+
+      <mesh ref={textRef}>
+        <cylinderGeometry args={[1.6, 1.6, 1, 64, 1, true]} />
+        <meshBasicMaterial
+          map={texture}
+          map-anisotropy={16}
+          map-repeat={[3, 1]}
+          transparent
+          opacity={1}
+          // depthWrite={false}
+          depthTest={false} // 👈 Cực kỳ quan trọng
+          toneMapped={false}
+          side={THREE.DoubleSide}
+          color={"#f5f5f5"}
+        />
+      </mesh>
+    </group>
   );
 }
 
@@ -133,14 +161,20 @@ function Model(props) {
   );
 
   useFrame((state, delta) => {
-    const currentPage = Math.floor(scroll.offset * 10);
-    // console.log(currentPage);
+    const currentPage = Math.floor(scroll.offset * page);
+    console.log(currentPage);
     if (currentPage >= 5) {
-      ref.current.position.y = (scroll.offset - 0.4) * 3 * numberOfBanner;
-      ref.current.rotation.y = -(scroll.offset - 0.4) * (Math.PI * 2);
-      state.camera.lookAt(0, (scroll.offset - 0.4) * 3 * numberOfBanner, 0);
+      ref.current.position.y =
+        (scroll.offset - 5 * (1 / page)) * (1.8 + 1.5) * numberOfBanner;
+      ref.current.rotation.y =
+        -(scroll.offset - 5 * (1 / page)) * (Math.PI * 3);
+      state.camera.lookAt(
+        0,
+        (scroll.offset - 5 * (1 / page)) * (1.8 + 1.5) * numberOfBanner,
+        0
+      );
       state.camera.position.y =
-        (scroll.offset - 0.3) * 1.8 * (numberOfBanner / 2);
+        (scroll.offset - 5 * (1 / page)) * (1.8 + 1.5) * (numberOfBanner / 2);
     } else {
       state.camera.position.y = 0;
       ref.current.position.y = 0;
@@ -150,7 +184,7 @@ function Model(props) {
   });
 
   return (
-    <group ref={ref}>
+    <group ref={ref} renderOrder={2} position={[0, 0, 1]}>
       <mesh geometry={nodes.Retopo_Curve001.geometry} scale={props.scale}>
         <MeshTransmissionMaterial
           backside
