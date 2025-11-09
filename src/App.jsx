@@ -13,6 +13,7 @@ import { easing } from "maath";
 import "./util";
 import Word from "./components/Word";
 import { page } from "./constants";
+import Tunnel from "./components/Tunnel";
 
 function GradientBackground() {
   const shader = {
@@ -59,19 +60,20 @@ export default function App() {
         <ScrollControls pages={page}>
           <Model scale={18} />
           {/* Page 1 */}
-          {["PROJECT:E", "CREATIVE", "PRODUCTION"].map((item, index) => {
+          {/* {["PROJECT:E", "CREATIVE", "PRODUCTION"].map((item, index) => {
             return <Word key={index} children={item} order={index} />;
-          })}
+          })} */}
 
           {/* Page 2 */}
-          <Banner position={[0, 0.5 + 1.8, 0]} text="/decoration.png" />
-          <Banner position={[0, 0.5 + 1.8 * 2, 0]} text="/event.png" />
-          <Banner position={[0, 0.5 + 1.8 * 3, 0]} text="/exhibition.png" />
-          <Banner position={[0, 0.5 + 1.8 * 4, 0]} text="/festival.png" />
-          <Banner position={[0, 0.5 + 1.8 * 5, 0]} text="/posm.png" />
-          <Banner position={[0, 0.5 + 1.8 * 6, 0]} text="/set design.png" />
+          <Banner position={[0, 1.8, 0]} text="/decoration.png" />
+          <Banner position={[0, 1.8 * 2, 0]} text="/event.png" />
+          <Banner position={[0, 1.8 * 3, 0]} text="/exhibition.png" />
+          <Banner position={[0, 1.8 * 4, 0]} text="/festival.png" />
+          <Banner position={[0, 1.8 * 5, 0]} text="/posm.png" />
+          <Banner position={[0, 1.8 * 6, 0]} text="/set design.png" />
 
           {/* Page 3 */}
+          <Tunnel />
         </ScrollControls>
         <EnvironmentCube preset="dawn" environmentIntensity={0.5} />
       </Canvas>
@@ -81,11 +83,13 @@ export default function App() {
 
 function Banner(props) {
   const textRef = useRef();
+  const backsideTextRef = useRef();
   const ringRef = useRef();
   const [isHovered, setIsHoverd] = useState(false);
 
   useFrame((state, delta) => {
     textRef.current.rotation.y += 0.01;
+    backsideTextRef.current.rotation.y += 0.01;
     easing.damp3(textRef.current.scale, isHovered ? 1.1 : 1, 0.1, delta);
     easing.damp(
       textRef.current.material,
@@ -113,6 +117,7 @@ function Banner(props) {
         ref={ringRef}
         onPointerEnter={() => setIsHoverd(true)}
         onPointerLeave={() => setIsHoverd(false)}
+        renderOrder={3}
       >
         <cylinderGeometry args={[1.6, 1.6, 1, 64, 1, true]} />
         <MeshTransmissionMaterial
@@ -120,17 +125,17 @@ function Banner(props) {
           // map-anisotropy={16}
           // map-repeat={[3, 1]}
           thickness={0.2}
-          transmission={0.6}
-          ior={1.5}
-          chromaticAberration={0.5}
+          transmission={1}
+          ior={0.95}
           side={THREE.DoubleSide}
+          envMapIntensity={1}
           toneMapped={false}
           anisotropy={0}
           color={"#ccc"}
         />
       </mesh>
 
-      <mesh ref={textRef}>
+      <mesh ref={textRef} renderOrder={2}>
         <cylinderGeometry args={[1.6, 1.6, 1, 64, 1, true]} />
         <meshBasicMaterial
           map={texture}
@@ -138,10 +143,26 @@ function Banner(props) {
           map-repeat={[3, 1]}
           transparent
           opacity={1}
-          // depthWrite={false}
+          depthWrite={false}
           depthTest={false} // 👈 Cực kỳ quan trọng
+          alphaTest={0.5}
           toneMapped={false}
-          side={THREE.DoubleSide}
+          side={THREE.FrontSide}
+          color={"#f5f5f5"}
+        />
+      </mesh>
+
+      <mesh ref={backsideTextRef} renderOrder={2}>
+        <cylinderGeometry args={[1.6, 1.6, 1, 64, 1, true]} />
+        <meshBasicMaterial
+          map={texture}
+          // map-anisotropy={16}
+          map-repeat={[3, 1]}
+          transparent
+          opacity={1}
+          depthWrite={false}
+          // depthTest={false} // 👈 Cực kỳ quan trọng
+          side={THREE.BackSide}
           color={"#f5f5f5"}
         />
       </mesh>
@@ -153,7 +174,7 @@ function Model(props) {
   const numberOfBanner = 6;
   const ref = useRef();
   const scroll = useScroll();
-  const { nodes } = useGLTF("/models/LOGO WEB NEW.glb");
+  const { nodes, animations } = useGLTF("/models/LOGO WEB NEW.glb");
   useLayoutEffect(() =>
     Object.values(nodes).forEach(
       (node) => (node.receiveShadow = node.castShadow = true)
@@ -162,7 +183,6 @@ function Model(props) {
 
   useFrame((state, delta) => {
     const currentPage = Math.floor(scroll.offset * page);
-    console.log(currentPage);
     if (currentPage >= 5) {
       ref.current.position.y =
         (scroll.offset - 5 * (1 / page)) * (1.8 + 1.5) * numberOfBanner;
