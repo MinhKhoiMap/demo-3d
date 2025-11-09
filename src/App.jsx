@@ -73,9 +73,9 @@ export default function App() {
           <Banner position={[0, 1.8 * 6, 0]} text="/set design.png" />
 
           {/* Page 3 */}
-          <Tunnel />
+          {/* <Tunnel /> */}
         </ScrollControls>
-        <EnvironmentCube preset="dawn" environmentIntensity={0.5} />
+        <EnvironmentCube preset="sunset" environmentIntensity={0.5} />
       </Canvas>
     </div>
   );

@@ -8,7 +8,7 @@ precision highp float;
 
 // Define line color and background color as constants
 const vec3 color1 = vec3(0, 0, 0);
-const vec3 color2 = vec3(1, 1, 1);
+const vec3 color2 = vec3(0.302, 0.302, 0.302);
 const vec3 color3 = vec3(0.0, 0.64314, 0.69412);
 
 const vec3 uLineColor = color2; 
