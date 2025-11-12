@@ -14,6 +14,9 @@ import "./util";
 import Word from "./components/Word";
 import { page } from "./constants";
 import Tunnel from "./components/Tunnel";
+import Project from "./components/Project";
+
+import "lenis/dist/lenis.css";
 
 function GradientBackground() {
   const shader = {
@@ -53,30 +56,35 @@ function GradientBackground() {
 }
 
 export default function App() {
+  const [showProject, setShowProject] = useState(false);
+
   return (
     <div className="w-screen h-screen">
       <Canvas camera={{ position: [-2, 0, 13], fov: 13 }}>
         <GradientBackground />
         <ScrollControls pages={page}>
-          <Model scale={18} />
-          {/* Page 1 */}
-          {/* {["PROJECT:E", "CREATIVE", "PRODUCTION"].map((item, index) => {
+          <Model setShowProject={setShowProject} />
+          Page 1
+          {["PROJECT:E", "CREATIVE", "PRODUCTION"].map((item, index) => {
             return <Word key={index} children={item} order={index} />;
-          })} */}
-
-          {/* Page 2 */}
-          <Banner position={[0, 1.8, 0]} text="/decoration.png" />
-          <Banner position={[0, 1.8 * 2, 0]} text="/event.png" />
-          <Banner position={[0, 1.8 * 3, 0]} text="/exhibition.png" />
-          <Banner position={[0, 1.8 * 4, 0]} text="/festival.png" />
-          <Banner position={[0, 1.8 * 5, 0]} text="/posm.png" />
-          <Banner position={[0, 1.8 * 6, 0]} text="/set design.png" />
-
-          {/* Page 3 */}
-          {/* <Tunnel /> */}
+          })}
+          Page 2
+          <Banner position={[0, 0.5 + 1.8, 0]} text="/decoration.png" />
+          <Banner position={[0, 0.5 + 1.8 * 2, 0]} text="/event.png" />
+          <Banner position={[0, 0.5 + 1.8 * 3, 0]} text="/exhibition.png" />
+          <Banner position={[0, 0.5 + 1.8 * 4, 0]} text="/festival.png" />
+          <Banner position={[0, 0.5 + 1.8 * 5, 0]} text="/posm.png" />
+          <Banner position={[0, 0.5 + 1.8 * 6, 0]} text="/set design.png" />
+          Page 3
+          <Tunnel />
         </ScrollControls>
-        <EnvironmentCube preset="sunset" environmentIntensity={0.5} />
+        <EnvironmentCube
+          preset="dawn"
+          environmentIntensity={0.1}
+          backgroundIntensity={0.5}
+        />
       </Canvas>
+      {showProject && <Project />}
     </div>
   );
 }
@@ -89,7 +97,7 @@ function Banner(props) {
 
   useFrame((state, delta) => {
     textRef.current.rotation.y += 0.01;
-    backsideTextRef.current.rotation.y += 0.01;
+    // backsideTextRef.current.rotation.y += 0.01;
     easing.damp3(textRef.current.scale, isHovered ? 1.1 : 1, 0.1, delta);
     easing.damp(
       textRef.current.material,
@@ -126,9 +134,8 @@ function Banner(props) {
           // map-repeat={[3, 1]}
           thickness={0.2}
           transmission={1}
-          ior={0.95}
+          ior={0.9}
           side={THREE.DoubleSide}
-          envMapIntensity={1}
           toneMapped={false}
           anisotropy={0}
           color={"#ccc"}
@@ -170,11 +177,11 @@ function Banner(props) {
   );
 }
 
-function Model(props) {
+function Model({ setShowProject }) {
   const numberOfBanner = 6;
   const ref = useRef();
   const scroll = useScroll();
-  const { nodes, animations } = useGLTF("/models/LOGO WEB NEW.glb");
+  const { nodes } = useGLTF("/models/LOGO WEB NEW.glb");
   useLayoutEffect(() =>
     Object.values(nodes).forEach(
       (node) => (node.receiveShadow = node.castShadow = true)
@@ -183,29 +190,38 @@ function Model(props) {
 
   useFrame((state, delta) => {
     const currentPage = Math.floor(scroll.offset * page);
-    if (currentPage >= 5) {
+    console.log(scroll.offset, "scroll");
+    if (currentPage >= 5 && currentPage < 13) {
       ref.current.position.y =
-        (scroll.offset - 5 * (1 / page)) * (1.8 + 1.5) * numberOfBanner;
+        (scroll.offset - 2 * (1 / page)) * (1.8 + 1.5) * numberOfBanner;
       ref.current.rotation.y =
-        -(scroll.offset - 5 * (1 / page)) * (Math.PI * 3);
+        -(scroll.offset - 2 * (1 / page)) * (Math.PI * 3);
       state.camera.lookAt(
         0,
-        (scroll.offset - 5 * (1 / page)) * (1.8 + 1.5) * numberOfBanner,
+        (scroll.offset - 2 * (1 / page)) * (1.8 + 1.5) * numberOfBanner,
         0
       );
       state.camera.position.y =
-        (scroll.offset - 5 * (1 / page)) * (1.8 + 1.5) * (numberOfBanner / 2);
-    } else {
+        (scroll.offset - 2 * (1 / page)) * (1.8 + 1.5) * (numberOfBanner / 2);
+    } else if (currentPage < 5) {
       state.camera.position.y = 0;
       ref.current.position.y = 0;
       state.camera.lookAt(0, 0, 0);
       ref.current.rotation.y = 0;
+    } else if (currentPage >= 13) {
+      setShowProject(true);
+      ref.current.rotation.y = 0;
+      ref.current.position.y = 0.5 + 1.8 * 7.3;
+      ref.current.position.x = 0.5;
+      ref.current.position.z = -5;
+      state.camera.lookAt(0, 0.5 + 1.8 * 7.3, 0);
+      state.camera.position.y = 0.5 + 1.8 * 7.3;
     }
   });
 
   return (
     <group ref={ref} renderOrder={2} position={[0, 0, 1]}>
-      <mesh geometry={nodes.Retopo_Curve001.geometry} scale={props.scale}>
+      <mesh geometry={nodes.Retopo_Curve001.geometry} scale={18}>
         <MeshTransmissionMaterial
           backside
           backsideThickness={0.4}
@@ -216,7 +232,7 @@ function Model(props) {
           thickness={1}
         />
       </mesh>
-      <mesh geometry={nodes.Retopo_Curve003.geometry} scale={props.scale}>
+      <mesh geometry={nodes.Retopo_Curve003.geometry} scale={18}>
         <MeshTransmissionMaterial
           thickness={0}
           ior={3}

@@ -1,13 +1,18 @@
 import { useFrame, useThree } from "@react-three/fiber";
 import React, { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
+import { easing } from "maath";
 
 import frag from "../shaders/tunnel.glsl?raw";
+import gsap from "gsap";
+import { page } from "../constants";
 import { useScroll } from "@react-three/drei";
 
 export default function Tunnel({ props }) {
   const { setSize } = useThree();
   const ref = useRef();
+
+  const scroll = useScroll();
 
   const uniform = useMemo(
     () => ({
@@ -23,14 +28,6 @@ export default function Tunnel({ props }) {
     []
   );
 
-  const scroll = useScroll();
-
-  useFrame((state, delta) => {
-    uniform.iTime.value += 0.05;
-
-    // ref.current.position.y = scroll.offset * 200;
-  });
-
   useEffect(() => {
     window.onresize = () => {
       const width = window.innerWidth;
@@ -41,20 +38,41 @@ export default function Tunnel({ props }) {
     };
   }, []);
 
+  useFrame((state, delta) => {
+    const currentPage = Math.floor(scroll.offset * page);
+    if (currentPage < 13) {
+      ref.current.scale.set(0, 0, 0);
+    } else {
+      ref.current.scale.set(1, 1, 1);
+    }
+
+    gsap.to(uniform.iTime, {
+      value: 10,
+      scrollTrigger: {
+        trigger: ".container",
+        start: "top top",
+        end: "bottom bottom",
+        scrub: true,
+      },
+    });
+  });
+
   return (
-    <mesh ref={ref} position={[0, 0, 0]} {...props}>
-      <planeGeometry args={[20, 20]} />
-      <shaderMaterial
-        uniforms={uniform}
-        vertexShader="
+    <>
+      <mesh ref={ref} position={[0, 0.5 + 1.8 * 7.3, -5]} {...props}>
+        <planeGeometry args={[20, 20]} />
+        <shaderMaterial
+          uniforms={uniform}
+          vertexShader="
           varying vec2 vUv;
           void main() {
               vUv = uv;
               gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
           }
         "
-        fragmentShader={frag}
-      />
-    </mesh>
+          fragmentShader={frag}
+        />
+      </mesh>
+    </>
   );
 }

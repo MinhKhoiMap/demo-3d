@@ -7,7 +7,7 @@ import { page } from "../constants";
 export default function Word({ children, order, ...props }) {
   const fontProps = {
     font: "/fonts/Boldonse-Regular.ttf",
-    fontSize: 0.5,
+    fontSize: 0.35,
     letterSpacing: -0.05,
     lineHeight: 1,
     "material-toneMapped": false,
