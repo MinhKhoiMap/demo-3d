@@ -40,7 +40,7 @@ function GradientBackground() {
           t = clamp(t, 0.0, 1.0);  
       
         // Gradient from red (bottom) to black (top)
-        vec3 color = mix(vec3(0.3, 0.0, 0.0), vec3(0.0), t);
+        vec3 color = mix(vec3(0.3, 0.0, 0.0), vec3(0.5, 0.5, 0.5), t);
 
         // --- Tạo chấm tròn nhỏ ---
         float aspect = 16.0 / 9.0; // ví dụ tỉ lệ màn hình của bạn
@@ -104,8 +104,8 @@ export default function App() {
         </ScrollControls>
         <EnvironmentCube
           preset="dawn"
-          environmentIntensity={0.1}
-          backgroundIntensity={0.5}
+          environmentIntensity={0.03}
+          backgroundIntensity={0.2}
         />
       </Canvas>
       {showProject && <Project />}
