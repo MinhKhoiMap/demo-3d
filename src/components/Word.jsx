@@ -63,7 +63,7 @@ export default function Word({ children, order, ...props }) {
     <Text
       ref={ref}
       position={[order * 5, 0, 0]}
-      // rotation={[0, order * (Math.PI / 30), 0]}
+      rotation={[0, order * (Math.PI / 30), 0]}
       {...fontProps}
       {...props}
       children={children}

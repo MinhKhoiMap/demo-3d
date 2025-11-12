@@ -59,7 +59,7 @@ export default function Tunnel({ props }) {
 
   return (
     <>
-      <mesh ref={ref} position={[0, 0.5 + 1.8 * 7.3, -5]} {...props}>
+      <mesh ref={ref} position={[0, 0.5 + 1.8 * 7.3, 0]} {...props}>
         <planeGeometry args={[20, 20]} />
         <shaderMaterial
           uniforms={uniform}
