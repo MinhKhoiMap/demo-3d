@@ -1,20 +1,30 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
+import cursor from "../script";
 
 export default function Cursor() {
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    if (canvasRef.current) {
+      cursor(canvasRef.current);
+    }
+  }, []);
+
   return (
-    <mesh>
-      <planeGeometry args={[20, 20]} />
-      <shaderMaterial
-        uniforms={uniform}
-        vertexShader="
-              varying vec2 vUv;
-              void main() {
-                  vUv = uv;
-                  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-              }
-            "
-        fragmentShader={frag}
-      />
-    </mesh>
+    <canvas
+      ref={canvasRef}
+      id="fluid"
+      style={{
+        position: "absolute",
+        top: 0,
+        left: 0,
+        width: "100vw",
+        height: "100vh",
+        zIndex: 1,
+        backgroundColor: "transparent !important",
+        pointerEvents: "none",
+        opacity: "0.5",
+      }}
+    />
   );
 }

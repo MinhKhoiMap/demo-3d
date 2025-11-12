@@ -8,6 +8,7 @@ import {
   MeshTransmissionMaterial,
   EnvironmentCube,
   useTexture,
+  Image,
 } from "@react-three/drei";
 import { easing } from "maath";
 import "./util";
@@ -17,6 +18,9 @@ import Tunnel from "./components/Tunnel";
 import Project from "./components/Project";
 
 import "lenis/dist/lenis.css";
+import GlassBroke from "./components/GlassBroke";
+import SceneTemp from "./components/SceneTemp";
+import Cursor from "./components/Cursor";
 
 function GradientBackground() {
   const shader = {
@@ -37,6 +41,18 @@ function GradientBackground() {
       
         // Gradient from red (bottom) to black (top)
         vec3 color = mix(vec3(0.3, 0.0, 0.0), vec3(0.0), t);
+
+        // --- Tạo chấm tròn nhỏ ---
+        float aspect = 16.0 / 9.0; // ví dụ tỉ lệ màn hình của bạn
+        vec2 grid = vUv * vec2(130.0, 130.0);
+        vec2 cell = fract(grid) - 0.5;
+        cell.x *= aspect; // chỉnh tỉ lệ theo màn hình
+
+        float d = length(cell);
+        float dotMask = smoothstep(0.10, 0.08, d);
+
+        vec3 dotColor = vec3(0.5);
+        color = mix(color, dotColor, dotMask * 0.4);
 
         gl_FragColor = vec4(color, 1.0);
       }
@@ -60,7 +76,13 @@ export default function App() {
 
   return (
     <div className="w-screen h-screen">
-      <Canvas camera={{ position: [-2, 0, 13], fov: 13 }}>
+      <Canvas
+        camera={{ position: [-2, 0, 13], fov: 13 }}
+        gl={{
+          outputColorSpace: THREE.SRGBColorSpace,
+        }}
+        style={{ zIndex: 0 }}
+      >
         <GradientBackground />
         <ScrollControls pages={page}>
           <Model setShowProject={setShowProject} />
@@ -77,6 +99,8 @@ export default function App() {
           <Banner position={[0, 0.5 + 1.8 * 6, 0]} text="/set design.png" />
           Page 3
           <Tunnel />
+          {/* <SceneTemp /> */}
+          {/* <GlassBroke /> */}
         </ScrollControls>
         <EnvironmentCube
           preset="dawn"
@@ -85,6 +109,8 @@ export default function App() {
         />
       </Canvas>
       {showProject && <Project />}
+
+      {/* <Cursor /> */}
     </div>
   );
 }
@@ -190,24 +216,24 @@ function Model({ setShowProject }) {
 
   useFrame((state, delta) => {
     const currentPage = Math.floor(scroll.offset * page);
-    console.log(scroll.offset, "scroll");
-    if (currentPage >= 5 && currentPage < 13) {
+    if (currentPage >= 6 && currentPage < 13) {
       ref.current.position.y =
-        (scroll.offset - 2 * (1 / page)) * (1.8 + 1.5) * numberOfBanner;
-      ref.current.rotation.y =
-        -(scroll.offset - 2 * (1 / page)) * (Math.PI * 3);
+        (scroll.offset - 1 / page) * (1.8 + 1.5) * numberOfBanner;
+      ref.current.rotation.y = -(scroll.offset - 1 / page) * (Math.PI * 3);
       state.camera.lookAt(
         0,
-        (scroll.offset - 2 * (1 / page)) * (1.8 + 1.5) * numberOfBanner,
+        (scroll.offset - 1 / page) * (1.8 + 1.5) * numberOfBanner,
         0
       );
       state.camera.position.y =
-        (scroll.offset - 2 * (1 / page)) * (1.8 + 1.5) * (numberOfBanner / 2);
-    } else if (currentPage < 5) {
+        (scroll.offset - 1 / page) * (1.8 + 1.5) * (numberOfBanner / 2);
+      ref.current.position.z = 0;
+    } else if (currentPage <= 5) {
       state.camera.position.y = 0;
       ref.current.position.y = 0;
       state.camera.lookAt(0, 0, 0);
       ref.current.rotation.y = 0;
+      ref.current.position.z = 0;
     } else if (currentPage >= 13) {
       setShowProject(true);
       ref.current.rotation.y = 0;

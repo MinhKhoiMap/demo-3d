@@ -1,7 +1,7 @@
 import { useFrame, useThree } from "@react-three/fiber";
 import React, { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
-import { easing } from "maath";
+// import { easing } from "maath";
 
 import frag from "../shaders/tunnel.glsl?raw";
 import gsap from "gsap";
@@ -47,7 +47,7 @@ export default function Tunnel({ props }) {
     }
 
     gsap.to(uniform.iTime, {
-      value: 10,
+      value: 1000,
       scrollTrigger: {
         trigger: ".container",
         start: "top top",
@@ -64,12 +64,12 @@ export default function Tunnel({ props }) {
         <shaderMaterial
           uniforms={uniform}
           vertexShader="
-          varying vec2 vUv;
-          void main() {
+            varying vec2 vUv;
+            void main() {
               vUv = uv;
               gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-          }
-        "
+            }
+          "
           fragmentShader={frag}
         />
       </mesh>
