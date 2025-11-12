@@ -104,7 +104,7 @@ export default function App() {
         </ScrollControls>
         <EnvironmentCube
           preset="dawn"
-          environmentIntensity={0.03}
+          environmentIntensity={0.3}
           backgroundIntensity={0.2}
         />
       </Canvas>
