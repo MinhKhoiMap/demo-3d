@@ -28,7 +28,7 @@ export default function App() {
   useEffect(() => {}, []);
 
   return (
-    <div className="w-screen h-screen" style={{ height: "1600vh" }}>
+    <div className="w-screen h-screen">
       <Canvas
         camera={{ position: [-2, 0, 13], fov: 13 }}
         gl={{
@@ -39,16 +39,9 @@ export default function App() {
         <Background />
         <ScrollControls pages={page}>
           <Model setShowProject={setShowProject} />
-          {/* Page 1
+          Page 1
           {["PROJECT:E", "CREATIVE", "PRODUCTION"].map((item, idx) => {
-            return (
-              <Word
-                key={idx}
-                children={item}
-                order={idx}
-               
-              />
-            );
+            return <Word key={idx} children={item} order={idx} />;
           })}
           Page 2
           <Banner position={[0, 0.5 + 1.8, 0]} text="/decoration.png" />
@@ -58,7 +51,7 @@ export default function App() {
           <Banner position={[0, 0.5 + 1.8 * 5, 0]} text="/posm.png" />
           <Banner position={[0, 0.5 + 1.8 * 6, 0]} text="/set design.png" />
           Page 3
-          <Tunnel /> */}
+          <Tunnel />
           {/* <SceneTemp /> */}
           {/* <GlassBroke /> */}
         </ScrollControls>

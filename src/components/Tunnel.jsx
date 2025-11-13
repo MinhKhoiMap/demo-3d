@@ -11,6 +11,7 @@ import { useScroll } from "@react-three/drei";
 export default function Tunnel({ props }) {
   const { setSize } = useThree();
   const ref = useRef();
+  const scrollHis = useRef(0);
 
   const scroll = useScroll();
 
@@ -47,12 +48,17 @@ export default function Tunnel({ props }) {
     }
 
     gsap.to(uniform.iTime, {
-      value: 1000,
       scrollTrigger: {
         trigger: ".container",
         start: "top top",
         end: "bottom bottom",
         scrub: true,
+        onUpdate: (self) => {
+          if (self.progress !== scrollHis.current) {
+            uniform.iTime.value += 0.5;
+            scrollHis.current = self.progress;
+          }
+        },
       },
     });
   });
