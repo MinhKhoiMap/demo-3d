@@ -1,10 +1,10 @@
 import * as THREE from "three";
-import { Text, useScroll } from "@react-three/drei";
+import { Text } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import { useRef } from "react";
+import { forwardRef, useImperativeHandle, useRef } from "react";
 import { page } from "../constants";
 
-export default function Word({ children, order, ...props }) {
+const Word = forwardRef(function Word({ children, order }, ref) {
   const fontProps = {
     font: "/fonts/Boldonse-Regular.ttf",
     fontSize: 0.35,
@@ -13,61 +13,24 @@ export default function Word({ children, order, ...props }) {
     "material-toneMapped": false,
   };
 
-  const scroll = useScroll();
-  const ref = useRef();
-  let scrollHis = 0,
-    isShow = true;
+  const wrapper = useRef();
+  const meshRef = useRef();
 
-  // Tie component to the render-loop
-  useFrame((state, delta) => {
-    const currentPage = Math.floor(scroll.offset * page);
-    // console.log(currentPage);
-    if (scroll.offset != scrollHis && currentPage < 5) {
-      if (order <= currentPage) {
-        isShow = false;
-      } else {
-        isShow = true;
-      }
+  useImperativeHandle(ref, () => wrapper.current);
 
-      if (!isShow) {
-        const fadeIn = scroll.range(
-          (1 / page) * order,
-          (1 / page) * (order + 1)
-        );
-        ref.current.position.x = THREE.MathUtils.lerp(order * 5, -6, fadeIn);
-
-        // ref.current.position.x += (10 / scroll.offset) * (order + 1) * -1;
-        // ref.current.position.y += scroll.offset * (order + 1) * -0.5;
-        // ref.current.position.z += scroll.offset * (order + 1) * 0.2;
-        // ref.current.rotation.y += scroll.offset * (order + 1) * (Math.PI / 10);
-      } else {
-        const fadeIn = scroll.range(
-          (1 / page) * order,
-          (1 / page) * (order + 1)
-        );
-        ref.current.position.x = THREE.MathUtils.lerp(order * 5, 0, fadeIn);
-
-        // ref.current.position.x += (10 / scroll.offset) * (order + 1) * -0.5;
-        // ref.current.position.y +=
-        //   ref.current.position.y <= 0 ? scroll.offset * (order + 1) * 0.5 : 0;
-        // ref.current.position.z -= scroll.offset * (order + 1) * 0.2;
-        // ref.current.rotation.y += -scroll.offset * (order + 1) * (Math.PI / 30);
-      }
-
-      // const
-
-      scrollHis = scroll.offset;
-    }
-  });
   return (
-    <Text
-      ref={ref}
-      position={[order * 5, 0, 0]}
-      rotation={[0, order * (Math.PI / 30), 0]}
-      {...fontProps}
-      {...props}
-      children={children}
-      maxWidth={5}
-    />
+    <group ref={wrapper} position={[order * 5, 0, 0]}>
+      <Text
+        ref={meshRef}
+        rotation={[0, order * (Math.PI / 30), 0]}
+        {...fontProps}
+        // {...props}
+        maxWidth={5}
+      >
+        {children}
+      </Text>
+    </group>
   );
-}
+});
+
+export default Word;

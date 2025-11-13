@@ -2,10 +2,8 @@ import React, { useCallback, useEffect, useRef } from "react";
 
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import Lenis from "lenis";
 
 const projects = [
-  // "/projects/transparent.png",
   "/projects/02_2.png",
   "/projects/03.png",
   "/projects/AURORA_S CRY.png",
@@ -19,8 +17,6 @@ const projects = [
   "/projects/SET09.jpg",
   "/projects/TIGER VIP ROOM.png",
 ];
-
-gsap.registerPlugin(ScrollTrigger);
 
 export default function Project() {
   const initialZ = useRef(-22500);
@@ -63,13 +59,6 @@ export default function Project() {
   }, []);
 
   useEffect(() => {
-    const lenis = new Lenis();
-    lenis.on("scroll", ScrollTrigger.update);
-    gsap.ticker.add((time) => {
-      lenis.raf(time * 1000);
-    });
-    gsap.ticker.lagSmoothing(0);
-
     generateProjects();
 
     ScrollTrigger.refresh();
@@ -84,13 +73,6 @@ export default function Project() {
       return ((val - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin;
     }
 
-    ScrollTrigger.create({
-      trigger: ".container",
-      start: "top top",
-      end: "bottom bottom",
-      scrub: 1,
-    });
-
     slides.forEach((slide) => {
       const initialZ = getInitialTranslateZ(slide);
 
@@ -103,13 +85,15 @@ export default function Project() {
           const progress = self.progress;
           const zIncrement = progress * 22500;
           const currentZ = initialZ + zIncrement;
-
           let opacity;
-          if (currentZ >= -2500) {
-            opacity = mapRange(currentZ, -2500, 0, 0, 1);
-          } else {
-            opacity = mapRange(currentZ, -5000, -2500, 0, 0);
-          }
+
+          if (self.progress > 0) {
+            if (currentZ >= -2500) {
+              opacity = mapRange(currentZ, -2500, 0, 0, 1);
+            } else {
+              opacity = mapRange(currentZ, -5000, -2500, 0, 0);
+            }
+          } else opacity = 0;
 
           slide.style.opacity = opacity;
           slide.style.transform = `translateX(-50%) translateY(-50%) translateZ(${currentZ}px)`;
@@ -117,15 +101,28 @@ export default function Project() {
       });
     });
 
+    gsap.fromTo(
+      ".container",
+      { opacity: 0 },
+      {
+        opacity: 1,
+        ease: "none",
+        scrollTrigger: {
+          trigger: ".container",
+          start: "top 90%",
+          end: "top 70%",
+          scrub: 0.15,
+        },
+      }
+    );
+
     return () => {
       ScrollTrigger.getAll().forEach((st) => st.kill());
-      gsap.ticker.remove(lenis.raf);
-      lenis.destroy();
     };
   }, []);
 
   return (
-    <div className="container">
+    <div className="container opacity-0">
       <div className="slider"></div>
     </div>
   );

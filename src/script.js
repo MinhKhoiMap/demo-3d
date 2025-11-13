@@ -6,12 +6,12 @@ export default function cursor(canvas) {
 
     let config = {
       TEXTURE_DOWNSAMPLE: 2,
-      DENSITY_DISSIPATION: 0.98,
+      DENSITY_DISSIPATION: 0.9,
       VELOCITY_DISSIPATION: 0.9,
-      PRESSURE_DISSIPATION: 0.5,
-      PRESSURE_ITERATIONS: 25,
-      CURL: 28,
-      SPLAT_RADIUS: 0.004,
+      PRESSURE_DISSIPATION: 0.8,
+      PRESSURE_ITERATIONS: 20,
+      CURL: 20,
+      SPLAT_RADIUS: 0.002,
     };
 
     let pointers = [];

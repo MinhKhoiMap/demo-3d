@@ -12,7 +12,7 @@ export default function Banner(props) {
 
   useFrame((state, delta) => {
     textRef.current.rotation.y += 0.01;
-    // backsideTextRef.current.rotation.y += 0.01;
+    backsideTextRef.current.rotation.y += 0.01;
     easing.damp3(textRef.current.scale, isHovered ? 1.1 : 1, 0.1, delta);
     easing.damp(
       textRef.current.material,

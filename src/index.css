@@ -10,18 +10,19 @@
   --gradient-color-4: red;
 }
 
+/* 
 *::-webkit-scrollbar {
   display: none;
-}
+} */
 
 body {
   width: 100vw;
-  overflow: hidden;
+  /* overflow: hidden; */
 }
 
 .container {
   width: 100vw;
-  height: 2000vh;
+  height: 400vh;
   z-index: 9999;
 }
 
@@ -49,11 +50,4 @@ body {
   background-color: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(20px);
-}
-
-canvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: -1;
 }

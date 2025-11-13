@@ -19,7 +19,7 @@ export default function Background() {
         vec3 color = mix(vec3(0.3, 0.0, 0.0), vec3(0.5, 0.5, 0.5), t);
 
         // --- Tạo chấm tròn nhỏ ---
-        float aspect = 16.0 / 9.0; // ví dụ tỉ lệ màn hình của bạn
+        float aspect = 16.0 / 9.0; 
         vec2 grid = vUv * vec2(130.0, 130.0);
         vec2 cell = fract(grid) - 0.5;
         cell.x *= aspect; // chỉnh tỉ lệ theo màn hình
