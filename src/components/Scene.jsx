@@ -110,7 +110,7 @@ export function Scene({ setShowProject }) {
         start: "top 90%",
         end: "bottom bottom",
         scrub: true,
-        markers: true,
+        // markers: true,
       },
     });
 

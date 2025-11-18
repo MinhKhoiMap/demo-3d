@@ -33,7 +33,7 @@ export default function Showcase() {
         start: "top 90%",
         end: "bottom bottom",
         scrub: true,
-        markers: true,
+        // markers: true,
       },
     });
 
@@ -74,7 +74,7 @@ export default function Showcase() {
           start: "top bottom",
           end: "top 50%",
           scrub: true,
-          markers: true,
+          // markers: true,
         },
       }
     );
@@ -92,7 +92,7 @@ export default function Showcase() {
           start: "top 60%",
           end: "top 50%",
           scrub: true,
-          markers: true,
+          // markers: true,
         },
       }
     );
@@ -110,7 +110,7 @@ export default function Showcase() {
           start: "top 60%",
           end: "top 50%",
           scrub: true,
-          markers: true,
+          // markers: true,
         },
       }
     );

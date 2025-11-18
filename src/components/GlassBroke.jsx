@@ -33,7 +33,7 @@ export default forwardRef(function GlassBroke(props, ref) {
         start: "top bottom",
         end: "bottom bottom",
         scrub: 1,
-        markers: true,
+        // markers: true,
       },
       onUpdate: () => {
         Object.values(actions).forEach((action) => {

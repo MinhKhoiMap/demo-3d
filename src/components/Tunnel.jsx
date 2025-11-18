@@ -53,7 +53,7 @@ export default forwardRef(function Tunnel(props, ref) {
         start: "top 90%",
         end: "bottom bottom",
         scrub: true,
-        markers: true,
+        // markers: true,
         onUpdate: (self) => {
           const step = 0.1;
 

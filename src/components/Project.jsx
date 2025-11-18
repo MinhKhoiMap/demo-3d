@@ -127,7 +127,7 @@ export default function Project() {
           start: "top 90%",
           end: "top 60%",
           scrub: 0.15,
-          markers: true,
+          // markers: true,
         },
       }
     );
