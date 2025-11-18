@@ -20,6 +20,7 @@ export default forwardRef(function Tunnel(props, ref) {
           window.innerHeight / 0.8
         ),
       },
+      iDepth: { value: 10 },
       scrollOffset: { value: 0 },
     }),
     []
@@ -33,11 +34,42 @@ export default forwardRef(function Tunnel(props, ref) {
       setSize(width, height);
       uniform.iResolution.value.set(width, height);
     };
+
+    gsap.timeline({
+      scrollTrigger: {
+        trigger: ".container",
+        start: "top top",
+        end: "bottom bottom",
+        scrub: true,
+        onUpdate: () => {
+          uniform.iTime.value += 0.05;
+        },
+      },
+    });
+
+    gsap.timeline({
+      scrollTrigger: {
+        trigger: "#page3",
+        start: "top 90%",
+        end: "bottom bottom",
+        scrub: true,
+        markers: true,
+        onUpdate: (self) => {
+          const step = 0.1;
+
+          if (self.direction == 1) {
+            uniform.iDepth.value = Math.max(uniform.iDepth.value - step, 1);
+          } else {
+            uniform.iDepth.value = Math.min(uniform.iDepth.value + step, 10);
+          }
+        },
+      },
+    });
   }, []);
 
   return (
     <>
-      <mesh ref={ref} position={[3, (0.5 + 1.8) * 12, -20]} {...props}>
+      <mesh ref={ref} position={[3, (0.5 + 1.8) * 12, -18]} {...props}>
         <planeGeometry args={[20, 20]} />
         <shaderMaterial
           uniforms={uniform}

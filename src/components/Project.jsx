@@ -116,6 +116,22 @@ export default function Project() {
       }
     );
 
+    gsap.fromTo(
+      ".container",
+      { opacity: 1 },
+      {
+        opacity: 0,
+        ease: "none",
+        scrollTrigger: {
+          trigger: "#page3",
+          start: "top 90%",
+          end: "top 60%",
+          scrub: 0.15,
+          markers: true,
+        },
+      }
+    );
+
     return () => {
       ScrollTrigger.getAll().forEach((st) => st.kill());
     };

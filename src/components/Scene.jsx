@@ -1,5 +1,4 @@
 import { useRef, useEffect } from "react";
-import { EnvironmentCube } from "@react-three/drei";
 import gsap from "gsap";
 import { useThree } from "@react-three/fiber";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -9,9 +8,9 @@ import Model from "./Model";
 import Word from "./Word";
 import GlassBroke from "./GlassBroke";
 import Overlay from "./Overlay";
-import Cursor from "./Cursor";
 import Banner from "./Banner";
 import Tunnel from "./Tunnel";
+import { OrbitControls } from "@react-three/drei";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -21,12 +20,12 @@ export function Scene({ setShowProject }) {
   const text3 = useRef();
   const overlay = useRef();
   const tunnel = useRef();
+  const glass = useRef();
 
   const model = useRef();
 
   const camera = useThree((state) => state.camera);
 
-  // Controller Page1
   useEffect(() => {
     if (!text1.current || !text2.current || !text3.current) return;
 
@@ -42,25 +41,18 @@ export function Scene({ setShowProject }) {
       });
 
       tl.fromTo(text1.current.position, { x: 0 }, { x: -5, ease: "none" }, 0)
-        .fromTo(text2.current.position, { x: 4 }, { x: -5, ease: "none" }, 0)
+        .fromTo(text2.current.position, { x: 4 }, { x: -5, ease: "none" }, 0.1)
         .fromTo(
           text3.current.position,
-          { x: 5 },
+          { x: 10 },
           { x: -10, ease: "none" },
-          0.2
+          0.3
         );
-
-      // ScrollTrigger.create({
-      //   trigger: "#page1",
-      //   onToggle: (self) => console.log("toggle", self.isActive),
-      //   onUpdate: (self) => console.log("progress", self.progress),
-      // });
     });
 
     return () => ctx.revert();
   }, []);
 
-  // PAGE 2 – Camera animation
   useEffect(() => {
     const tl = gsap.timeline({
       scrollTrigger: {
@@ -83,7 +75,15 @@ export function Scene({ setShowProject }) {
       },
       0
     )
-      .to(model.current.rotation, { y: -2 * Math.PI, ease: "none" }, 0)
+      .to(
+        camera.position,
+        {
+          y: unit * 7,
+          ease: "none",
+        },
+        0
+      )
+      .to(model.current.rotation, { y: -4 * Math.PI, ease: "none" }, 0)
       .to(model.current.position, { x: 0.1, ease: "none" }, 0.5)
       .to(
         model.current.scale,
@@ -99,25 +99,22 @@ export function Scene({ setShowProject }) {
       .to(model.current.scale, { x: 0.5, y: 0.5, z: 0.5, ease: "none" }, 0.5)
       .to(overlay.current.position, { z: 5, ease: "none" }, 0.5)
       .to(camera.position, { z: -3, ease: "none" }, 0.5)
-      .to(tunnel.current.position, { y: unit * 10, ease: "none" }, 0.4);
+      .to(tunnel.current.position, { y: unit * 10, ease: "none" }, 0.4)
+      .to(glass.current.position, { y: unit * 7, ease: "none" }, 0.4);
+  }, []);
 
-    tl.to(
-      camera.position,
-      {
-        y: unit * 7, // camera đi ít hơn model
-        ease: "none",
+  useEffect(() => {
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: "#page3",
+        start: "top 90%",
+        end: "bottom bottom",
+        scrub: true,
+        markers: true,
       },
-      0
-    );
+    });
 
-    // tl.to(
-    //   camera.position,
-    //   {
-    //     y: unit * 7, // camera bắt kịp model tại cuối Page2
-    //     ease: "none",
-    //   },
-    //   "0.6"
-    // );
+    tl.to(glass.current.position, { z: -17.5, ease: "none" }, 0);
   }, []);
 
   return (
@@ -125,7 +122,7 @@ export function Scene({ setShowProject }) {
       <Background />
       <Model ref={model} setShowProject={setShowProject} />
 
-      {/* PAGE 1 - 3 chữ */}
+      {/* PAGE 1 */}
       <Word ref={text1} order={0}>
         PROJECT:E
       </Word>
@@ -135,8 +132,6 @@ export function Scene({ setShowProject }) {
       <Word ref={text3} order={2}>
         PRODUCTION
       </Word>
-
-      {/* Sau này thêm PAGE 2, PAGE 3 ở đây */}
 
       {/* PAGE 2 */}
       <Banner position={[0, 0.5 + 1.8, 0]} text="/decoration.png" />
@@ -148,8 +143,10 @@ export function Scene({ setShowProject }) {
 
       {/* PAGE 3 */}
       <Overlay ref={overlay} />
-
       <Tunnel ref={tunnel} />
+
+      {/* PAGE 4 */}
+      <GlassBroke ref={glass} />
     </>
   );
 }

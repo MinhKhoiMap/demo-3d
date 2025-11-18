@@ -1,7 +1,7 @@
 
 uniform float iTime;
 uniform vec2 iResolution;
-
+uniform float iDepth;
 
 // 3D rectangular tunnel effect with movement and diagonal wall lines
 precision highp float;
@@ -47,7 +47,7 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     float time = -iTime * 2.5;
 
     // Tunnel parameters
-    float depth = 10.0; // Total depth of the tunnel
+    float depth = iDepth; // Total depth of the tunnel
     float numRects = 10.0; // Number of rectangles in the tunnel
     float spacing = depth / numRects; // Spacing between rectangles
 

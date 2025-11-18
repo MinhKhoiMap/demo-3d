@@ -1,4 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Boldonse&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&display=swap');
+
 @import "tailwindcss";
 
 #gradient-canvas {
@@ -10,14 +13,28 @@
   --gradient-color-4: red;
 }
 
-/* 
-*::-webkit-scrollbar {
+.bricolage-grotesque {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 500;
+  font-style: normal;
+  font-variation-settings:
+    "wdth" 100;
+}
+
+.boldonse-regular {
+  font-family: "Boldonse", system-ui;
+  font-weight: 400;
+  font-style: normal;
+}
+
+/* *::-webkit-scrollbar {
   display: none;
 } */
 
 body {
   width: 100vw;
-  /* overflow: hidden; */
+  overflow-x: hidden;
 }
 
 .container {
@@ -50,4 +67,17 @@ body {
   background-color: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(20px);
+}
+
+#sub-header a {
+  color: #8E8E8E
+}
+
+#sub-header a.active {
+  color: #fff
+}
+
+#projects > div {
+  width: calc(100% / 3 - 14px);
+  height: 472px;
 }
